@@ -41,6 +41,8 @@ var tileLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolo
 }).addTo(mymap);
 tileLayer.setOpacity(0.7);
 
+console.log('Instantiated 0');
+
 // Adding leaf icon for marker
 var LeafIcon = L.Icon.extend({
     options: {
@@ -55,6 +57,7 @@ var librettoIcon = new LeafIcon({iconUrl: '../images/book-solid.svg'});
 // Adding icon for theatre
 var theatreIcon = new LeafIcon({iconUrl: '../images/landmark-solid.svg'});
 
+console.log('Instantiated 1');
 
 function doStuff(data) {
     //Data is usable here
@@ -66,6 +69,8 @@ function doStuff(data) {
       }
     });
 
+    console.log('Instantiated 3');
+
    years = years.slice(0, 692);
    min_year = Math.min(...years);
    max_year = Math.max(...years);
@@ -74,9 +79,13 @@ function doStuff(data) {
    var ranges = _.range(min_year, max_year, 22);
    var total_ranges = ranges.length;
 
+   console.log('Instantiated 4');
+
    // Setting the range of the slider and setting the half value
    document.getElementById('myRange').max = (total_ranges - 1) * 10;
    document.getElementById('myRange').value = (parseInt(total_ranges / 2, 10) + 3) * 10;
+
+   console.log('Instantiated 5');
 
    // get the wrapper element for adding the ticks
    var step_list = document.getElementsByClassName('menuwrapper')[0];
@@ -97,6 +106,7 @@ function doStuff(data) {
      span_two.style.marginTop = "-14px";
      step_list_two.appendChild(span_two);
    }
+   console.log('Instantiated 6');
 }
 
 // Parse data from papa parse CSV
