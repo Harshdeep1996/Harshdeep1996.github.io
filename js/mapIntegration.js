@@ -63,13 +63,15 @@ function doStuff(data) {
     //Data is usable here
     var years = [];
 
+    console.log(data);
     data.forEach(function (o) {
+      console.log(o[YEAR_INDEX], typeof o[YEAR_INDEX]);
       if (typeof o[YEAR_INDEX] !== 'string') {
         years.push(parseInt(o[YEAR_INDEX], 10));
       }
     });
 
-    console.log('Instantiated 3');
+    console.log('Instantiated 3', years);
 
    years = years.slice(0, 692);
    min_year = Math.min(...years);
@@ -79,7 +81,7 @@ function doStuff(data) {
    var ranges = _.range(min_year, max_year, 22);
    var total_ranges = ranges.length;
 
-   console.log('Instantiated 4');
+   console.log('Instantiated 4', years, min_year, max_year, ranges, total_ranges);
 
    // Setting the range of the slider and setting the half value
    document.getElementById('myRange').max = (total_ranges - 1) * 10;
