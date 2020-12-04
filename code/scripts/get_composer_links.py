@@ -40,4 +40,4 @@ y3['lower_bounds_list'] = y3['merged'].apply(
 y3['lower_bounds'] = y3['lower_bounds_list'].apply(lambda x: list(x.keys())[0])
 y3['lower_bounds_val'] = y3['lower_bounds_list'].apply(
     lambda x: list(x.values())[0])
-y3.reset_index().to_csv('data/composer_links.csv', index=False)
+y3.reset_index().to_csv('../../data/composer_links.csv', index=False)

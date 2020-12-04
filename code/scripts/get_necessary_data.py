@@ -19,4 +19,4 @@ librettos_with_year_and_city['date'] = librettos_with_year_and_city['date'].appl
 librettos_with_year_and_city = librettos_with_year_and_city[librettos_with_year_and_city['date'] != 19]
 print(librettos_with_year_and_city['date'].min(), librettos_with_year_and_city['date'].max())
 
-librettos_with_year_and_city.to_csv('data/get_librettos_dummies.csv')
+librettos_with_year_and_city.to_csv('../../data/get_librettos_dummies.csv')
