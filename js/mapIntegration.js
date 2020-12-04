@@ -41,8 +41,6 @@ var tileLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolo
 }).addTo(mymap);
 tileLayer.setOpacity(0.7);
 
-console.log('Instantiated 0');
-
 // Adding leaf icon for marker
 var LeafIcon = L.Icon.extend({
     options: {
@@ -57,21 +55,16 @@ var librettoIcon = new LeafIcon({iconUrl: '../images/book-solid.svg'});
 // Adding icon for theatre
 var theatreIcon = new LeafIcon({iconUrl: '../images/landmark-solid.svg'});
 
-console.log('Instantiated 1');
-
 function doStuff(data) {
     //Data is usable here
     var years = [];
 
     console.log(data);
     data.forEach(function (o) {
-      console.log(o[YEAR_INDEX], typeof o[YEAR_INDEX]);
       if (typeof o[YEAR_INDEX] !== 'string') {
         years.push(parseInt(o[YEAR_INDEX], 10));
       }
     });
-
-    console.log('Instantiated 3', years);
 
    years = years.slice(0, 692);
    min_year = Math.min(...years);
@@ -81,13 +74,9 @@ function doStuff(data) {
    var ranges = _.range(min_year, max_year, 22);
    var total_ranges = ranges.length;
 
-   console.log('Instantiated 4', years, min_year, max_year, ranges, total_ranges);
-
    // Setting the range of the slider and setting the half value
    document.getElementById('myRange').max = (total_ranges - 1) * 10;
    document.getElementById('myRange').value = (parseInt(total_ranges / 2, 10) + 3) * 10;
-
-   console.log('Instantiated 5');
 
    // get the wrapper element for adding the ticks
    var step_list = document.getElementsByClassName('menuwrapper')[0];
@@ -108,7 +97,6 @@ function doStuff(data) {
      span_two.style.marginTop = "-14px";
      step_list_two.appendChild(span_two);
    }
-   console.log('Instantiated 6');
 }
 
 // Parse data from papa parse CSV
@@ -194,9 +182,9 @@ function deleteLinks() {
 
 function hoverAndDoThings(mouseObj) {
     // Make a textual pane when we find the city and click on the point
-    // and then we remove it, when we click on something else
-    var scrollTextPane = document.getElementById('scrollText');
-    var city_name = mouseObj._tooltip._content.split(":")[2].replace(/\s+/, "");
+    // and then we remove it, when we click on soething else
+    var scrollTextPane = document.getElementById("scrollText");
+    var city_name = mouseObj._tooltip._content.split(":")[2].replace(/\s+/, '');
 
     // Remove the panel cards if some of them exists already
     if(scrollTextPane.children.length !== 0) {
@@ -208,6 +196,12 @@ function hoverAndDoThings(mouseObj) {
       var heading = document.getElementsByClassName("headingFDHPanel")[0];
       heading.parentNode.removeChild(heading);
     }
+
+    // Changing the length of the map and the slider container
+    var full_container = document.getElementsByClassName("fullcontainer")[0];
+    full_container.style.width = "76%";
+    var slidecontainer = document.getElementsByClassName("slidecontainer")[0];
+    slidecontainer.style.width = "76%";
 
     // Adding heading for the right bar
     var h4 = document.createElement("h4");

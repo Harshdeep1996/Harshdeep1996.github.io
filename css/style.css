@@ -33,7 +33,7 @@ body {
 }
 
 .slidecontainer {
-  width: 76%;
+  width: 100%;
   z-index: 10000000;
 }
 
