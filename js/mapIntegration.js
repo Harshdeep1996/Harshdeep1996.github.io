@@ -198,8 +198,8 @@ function hoverAndDoThings(mouseObj) {
     }
 
     // Changing the length of the map and the slider container
-    var full_container = document.getElementsByClassName("fullcontainer")[0];
-    full_container.style.width = "76%";
+    var map_id = document.getElementById("map_id");
+    map_id.style.width = "76%";
     var slidecontainer = document.getElementsByClassName("slidecontainer")[0];
     slidecontainer.style.width = "76%";
 
