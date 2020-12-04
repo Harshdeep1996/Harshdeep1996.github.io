@@ -69,13 +69,9 @@ function doStuff(data) {
    min_year = Math.min(...years);
    max_year = Math.max(...years);
 
-   console.log(years, min_year, max_year);
-
    // Taking the range for every 22 years
    var ranges = _.range(min_year, max_year, 22);
    var total_ranges = ranges.length;
-
-   console.log(ranges, total_ranges);
 
    // Setting the range of the slider and setting the half value
    document.getElementById('myRange').max = (total_ranges - 1) * 10;
@@ -84,8 +80,6 @@ function doStuff(data) {
    // get the wrapper element for adding the ticks
    var step_list = document.getElementsByClassName('menuwrapper')[0];
    var step_list_two = document.getElementsByClassName('menuwrapper2')[0];
-
-   console.log('Instantiated 1');
 
    // Adding years with marking on the slider as p tags
    for (var index = 0; index <= total_ranges - 1; index++) {
@@ -102,7 +96,6 @@ function doStuff(data) {
      span_two.style.marginTop = "-14px";
      step_list_two.appendChild(span_two);
    }
-   console.log('Instantiated 2');
 }
 
 // Parse data from papa parse CSV
