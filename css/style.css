@@ -1,6 +1,6 @@
 #mapid { 
   height: 100%; 
-  width: 76%;
+  width: 100%;
   font-family: "Lucida Console", Courier, monospace;
   float: left;
 }
@@ -17,7 +17,7 @@ h4 {
 
 #scrollText {
   height: 100%;
-  width: 24%;
+  width: 0%;
   /*background-color: green;*/
   float: right;
   overflow-x: hidden;

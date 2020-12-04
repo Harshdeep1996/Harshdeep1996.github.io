@@ -198,10 +198,15 @@ function hoverAndDoThings(mouseObj) {
     }
 
     // Changing the length of the map and the slider container
-    var map_id = document.getElementById("map_id");
-    map_id.style.width = "76%";
+    var full_container = document.getElementsByClassName("fullcontainer")[0];
+    full_container.style.width = "76%";
     var slidecontainer = document.getElementsByClassName("slidecontainer")[0];
     slidecontainer.style.width = "76%";
+    // Changing specifically for map and the Information box
+    var map_id = document.getElementById("map_id");
+    map_id.style.width = "76%";
+    var scroll_text_id = document.getElementById("scrollText");
+    scroll_text_id.style.width = "24%";
 
     // Adding heading for the right bar
     var h4 = document.createElement("h4");
