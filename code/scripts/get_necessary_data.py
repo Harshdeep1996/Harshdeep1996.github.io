@@ -1,9 +1,6 @@
 import pandas as pd
 
-librettos = pd.read_csv('../data/librettos_dummies.csv')
-librettos_theaters = pd.read_csv('../data/librettos_theaters.csv', sep='\t')[['file_name', 'inferred_title', 'inferred_latitude', 'inferred_longitude']]
-
-librettos = pd.concat([librettos, librettos_theaters], axis=1)
+librettos = pd.read_csv('../../data/librettos_7.csv', sep='\t')
 
 print('Total number of librettos: {}'.format(librettos.shape[0]))
 print('Columns present in the CSV: {}'.format(librettos.columns))
