@@ -203,7 +203,7 @@ function hoverAndDoThings(mouseObj) {
     var slidecontainer = document.getElementsByClassName("slidecontainer")[0];
     slidecontainer.style.width = "76%";
     // Changing specifically for map and the Information box
-    var map_id = document.getElementById("map_id");
+    var map_id = document.getElementById("mapid");
     map_id.style.width = "76%";
     var scroll_text_id = document.getElementById("scrollText");
     scroll_text_id.style.width = "24%";
