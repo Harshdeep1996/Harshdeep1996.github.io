@@ -241,7 +241,7 @@ function hoverAndDoThings(mouseObj) {
         var p_title_composer_text = null;
         var dropdown_div = null;
         var composer_div = null;
-        if((o[COMPOSER_INDEX] !== 'Not found') or (o[COMPOSER_INDEX] == null)) {
+        if(o[COMPOSER_INDEX] !== null) {
           p_title_composer = document.createElement("p");
           p_title_composer.innerHTML = "Composer";
           p_title_composer.style.fontSize = "15px";
