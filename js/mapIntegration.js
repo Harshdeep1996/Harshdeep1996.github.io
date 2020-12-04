@@ -17,15 +17,15 @@ var lastCityClicked = null;
 var yearSelected = null;
 
 // Indexes for array to trace in the data we retrieve from CSV
-const TITLE_INDEX = 4;
-const YEAR_INDEX = 5;
-const CITY_INDEX = 9;
-const LAT_INDEX = 10;
-const LONG_INDEX = 11;
-const COMPOSER_INDEX = 16;
-const THEATER_NAME = 20;
-const THEATER_LAT = 21;
-const THEATER_LONG = 22;
+const TITLE_INDEX = 2;
+const YEAR_INDEX = 3;
+const CITY_INDEX = 6;
+const LAT_INDEX = 7;
+const LONG_INDEX = 8;
+const COMPOSER_INDEX = 10;
+const THEATER_NAME = 14;
+const THEATER_LAT = 11;
+const THEATER_LONG = 12;
 
 var mymap = L.map('mapid').setView([globalLat, globalLong], 6);
 
@@ -59,20 +59,23 @@ function doStuff(data) {
     //Data is usable here
     var years = [];
 
-    console.log(data);
     data.forEach(function (o) {
       if (typeof o[YEAR_INDEX] !== 'string') {
         years.push(parseInt(o[YEAR_INDEX], 10));
       }
     });
 
-   years = years.slice(0, 692);
+   years = years.slice(0, 629);
    min_year = Math.min(...years);
    max_year = Math.max(...years);
+
+   console.log(years, min_year, max_year);
 
    // Taking the range for every 22 years
    var ranges = _.range(min_year, max_year, 22);
    var total_ranges = ranges.length;
+
+   console.log(ranges, total_ranges);
 
    // Setting the range of the slider and setting the half value
    document.getElementById('myRange').max = (total_ranges - 1) * 10;
@@ -81,6 +84,8 @@ function doStuff(data) {
    // get the wrapper element for adding the ticks
    var step_list = document.getElementsByClassName('menuwrapper')[0];
    var step_list_two = document.getElementsByClassName('menuwrapper2')[0];
+
+   console.log('Instantiated 1');
 
    // Adding years with marking on the slider as p tags
    for (var index = 0; index <= total_ranges - 1; index++) {
@@ -97,6 +102,7 @@ function doStuff(data) {
      span_two.style.marginTop = "-14px";
      step_list_two.appendChild(span_two);
    }
+   console.log('Instantiated 2');
 }
 
 // Parse data from papa parse CSV
@@ -242,7 +248,7 @@ function hoverAndDoThings(mouseObj) {
         var p_title_composer_text = null;
         var dropdown_div = null;
         var composer_div = null;
-        if(o[COMPOSER_INDEX] !== 'Not found') {
+        if((o[COMPOSER_INDEX] !== 'Not found') or (o[COMPOSER_INDEX] == null)) {
           p_title_composer = document.createElement("p");
           p_title_composer.innerHTML = "Composer";
           p_title_composer.style.fontSize = "15px";
@@ -259,7 +265,7 @@ function hoverAndDoThings(mouseObj) {
           p_title_composer_text.innerHTML = o[COMPOSER_INDEX];
           p_title_composer_text.style.fontSize = "10px";
           // Create only dropdowns where we can see the multiple links
-          if(composer_links['lower_bounds'].data.includes(yearSelected) && composer_links["composer"].data.includes(o[COMPOSER_INDEX])) {
+          if(composer_links['lower_bounds'].data.includes(yearSelected) && composer_links['inferred_composer'].data.includes(o[COMPOSER_INDEX])) {
             composer_div = document.createElement("div");
             composer_div.appendChild(p_title_composer);
             dropdown_div = insertDropdown();
@@ -317,7 +323,6 @@ function plotIntensityMap(cityCount, subTheatres, totalLibrettoCount) {
             lastCityClicked = temp_city_name;
           } else {
             // Zoom in into the point if you click again
-            console.log("Inside else 2 clicks", subTheatres);
               for (var key in subTheatres) {
                 var key_list = key.split(',');
                 var key_city_name = key_list[0];
@@ -338,7 +343,6 @@ function plotIntensityMap(cityCount, subTheatres, totalLibrettoCount) {
                     city_string += (index + 1) + ". " + element;
                     city_string += "<br>";
                   }
-                  console.log(city_string);
                   theatre_marker.bindTooltip("For theaters: " + city_string + " in city of: " + temp_city_name, {
                     permanent: false, className: "my-theater-label", offset: [0, 0]
                   });
@@ -423,7 +427,6 @@ slider.oninput = function() {
     }
   });
 
-  console.log('harsh', getSubTheatres);
   plotIntensityMap(
     getIntensityCount, getSubTheatres, totalLibrettoCount);
 }
