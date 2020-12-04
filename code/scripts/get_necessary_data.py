@@ -1,9 +1,6 @@
 import pandas as pd
 
-librettos = pd.read_csv('../data/librettos_dummies.csv')
-librettos_theaters = pd.read_csv('../data/librettos_theaters.csv', sep='\t')[['file_name', 'inferred_title', 'inferred_latitude', 'inferred_longitude']]
-
-librettos = pd.concat([librettos, librettos_theaters], axis=1)
+librettos = pd.read_csv('../../data/librettos_7.csv', sep='\t')
 
 print('Total number of librettos: {}'.format(librettos.shape[0]))
 print('Columns present in the CSV: {}'.format(librettos.columns))
@@ -19,4 +16,4 @@ librettos_with_year_and_city['date'] = librettos_with_year_and_city['date'].appl
 librettos_with_year_and_city = librettos_with_year_and_city[librettos_with_year_and_city['date'] != 19]
 print(librettos_with_year_and_city['date'].min(), librettos_with_year_and_city['date'].max())
 
-librettos_with_year_and_city.to_csv('data/get_librettos_dummies.csv')
+librettos_with_year_and_city.to_csv('../../data/get_librettos_dummies.csv')

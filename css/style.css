@@ -1,12 +1,12 @@
 #mapid { 
   height: 100%; 
   width: 100%;
-  font-family: "Lucida Console", Courier, monospace;
+  font-family: 'Quattrocento', serif;
   float: left;
 }
 
-h4 {
-  font-family: "Lucida Console", Courier, monospace;
+h3 {
+  font-family: 'Quattrocento', serif;
 }
 
 .fullcontainer {
@@ -29,7 +29,7 @@ h4 {
 }
 
 body {
-  font-family: "Lucida Console", Courier, monospace;
+  font-family: 'Quattrocento', serif;
 }
 
 .slidecontainer {
