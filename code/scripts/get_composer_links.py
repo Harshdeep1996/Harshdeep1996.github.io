@@ -8,7 +8,7 @@ y = y[x['city_name'] != '0']
 
 YEAR_TICKS = list(range(1606, 1926, 22))
 
-y['merged'] = y.apply(lambda row: {row['city_name']:[row['date'],row['title']]}, axis=1)
+y['merged'] = y.apply(lambda row: {row['city_name']:[row['date'],row['inferred_title']]}, axis=1)
 
 y3 = y[['merged', 'inferred_composer']].groupby('inferred_composer').agg(list)
 y3 = y3[y3['merged'].apply(lambda x: True if len(x) > 1 else False)]
