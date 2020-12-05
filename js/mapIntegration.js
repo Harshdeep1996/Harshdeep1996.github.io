@@ -23,9 +23,11 @@ const CITY_INDEX = 6;
 const LAT_INDEX = 7;
 const LONG_INDEX = 8;
 const COMPOSER_INDEX = 10;
-const THEATER_NAME = 14;
+const THEATER_NAME = 13;
 const THEATER_LAT = 11;
 const THEATER_LONG = 12;
+const GENRE_INDEX = 17;
+const OCCASION_INDEX = 18;
 
 var mymap = L.map('mapid').setView([globalLat, globalLong], 6);
 
@@ -122,9 +124,10 @@ dfd.read_csv("../data/composer_links.csv")
 })
 
 
-function insertDropdown () {
+function insertDropdown (name, year) {
   // Make dropdown menu
   var div = document.createElement('select');
+  div.id = "div-" + name + "-" + year;
   div.setAttribute("name", "platform");
   // This will not work for more than 2 sequences
   var option = document.createElement('option');
@@ -138,25 +141,37 @@ function insertDropdown () {
   return div
 }
 
-function createLinks() {
-  var sameYearComposer = composer_links.query(
-    {column: "lower_bounds", is: "==", to: "1760"});
+function createLinks(dropdown_id) {
+  var same_year = composer_links.query(
+    {column: "lower_bounds", is: "==", to: String(yearSelected)});
+  var composer_selected = dropdown_id.split('-')[1];
+  var sameYearComposer = same_year.query(
+    {column: "inferred_composer", is: "==", to: composer_selected})
   var allCitiesLabels = [];
   for(let i=0; i < sameYearComposer.shape[0]; i++) {
     var city_list = sameYearComposer['cities'].data[i].replace(
       '}', '').replace('{', '').replace(/'/g,'').split(', ');
+    var titles_list = sameYearComposer['titles'].data[i].replace(
+      '}', '').replace('{', '').replace(/'/g,'').split('\t\t');
     allCitiesLabels.push('cityMarker-' + city_list[0]);
     allCitiesLabels.push('cityMarker-' + city_list[1]);
     // From src to the destination
     var pointList = [latLongMap[city_list[0]], latLongMap[city_list[1]]];
     var link_path = new L.Polyline(pointList, {
       color: 'red',
-      weight: 3,
+      weight: 10,
       opacity: 0.5,
       smoothFactor: 1,
       className: 'linkLine'
     });
-    console.log(link_path);
+    var all_title_string = '';
+    titles_list.forEach(function (item, index) {
+      all_title_string += (index + 1) + ". " + item;
+      all_title_string += "<br><br>";
+    });
+    link_path.bindTooltip("Composers played for titles: " + "<br>" + all_title_string, {
+      permanent: false, className: "my-link-label", noWrap: true, offset: [0, 0]
+    });
     link_path.addTo(mymap);
   }
   document.querySelectorAll("[id^='cityMarker-']").forEach(function(o) {
@@ -262,7 +277,7 @@ function hoverAndDoThings(mouseObj) {
           if(composer_links['lower_bounds'].data.includes(yearSelected) && composer_links['inferred_composer'].data.includes(o[COMPOSER_INDEX])) {
             composer_div = document.createElement("div");
             composer_div.appendChild(p_title_composer);
-            dropdown_div = insertDropdown();
+            dropdown_div = insertDropdown(o[COMPOSER_INDEX], yearSelected);
             dropdown_div.style.display = "inline";
             dropdown_div.style.marginLeft = "5px";
 
@@ -272,7 +287,7 @@ function hoverAndDoThings(mouseObj) {
                 deleteLinks();
               } else {
                 tileLayer.setOpacity(0.4);
-                createLinks();
+                createLinks(dropdown_div.id);
               }
             };
             composer_div.appendChild(dropdown_div);
@@ -283,6 +298,34 @@ function hoverAndDoThings(mouseObj) {
           }
           div.appendChild(p_title_composer_text);
         }
+
+        // Adding genre to the pane
+        if (o[GENRE_INDEX] !== 'Not found') {
+          var p_genre = document.createElement("p");
+          p_genre.innerHTML = "Genre";
+          p_genre.style.fontSize = "15px";
+
+          var p_genre_text = document.createElement("p");
+          p_genre_text.innerHTML = o[GENRE_INDEX];
+          p_genre_text.style.fontSize = "10px";
+          div.appendChild(p_genre);
+          div.appendChild(p_genre_text);
+        }
+
+        // Adding occasion to the pane
+        if (o[OCCASION_INDEX] !== 'Not found') {
+          var p_occasion = document.createElement("p");
+          p_occasion.innerHTML = "Occasion";
+          p_occasion.style.fontSize = "15px";
+
+          var p_occasion_text = document.createElement("p");
+          p_occasion_text.innerHTML = o[OCCASION_INDEX];
+          p_occasion_text.style.fontSize = "10px";
+          div.appendChild(p_occasion);
+          div.appendChild(p_occasion_text);
+        }
+
+        // Add composer to the pane
         scrollTextPane.appendChild(div);
       }
     });
@@ -316,44 +359,54 @@ function plotIntensityMap(cityCount, subTheatres, totalLibrettoCount) {
             hoverAndDoThings(this);
             lastCityClicked = temp_city_name;
           } else {
-            // Zoom in into the point if you click again
-              for (var key in subTheatres) {
-                var key_list = key.split(',');
-                var key_city_name = key_list[0];
-                var key_lat = key_list[1];
-                var key_long = key_list[2];
-                if(temp_city_name === key_city_name) {
-                  var theatre_marker = L.marker(
-                    [key_lat, key_long], 
-                    {icon: theatreIcon}
-                    // {color: 'skyblue', fillColor: 'black', fillOpacity: 0.2, radius: 10}
-                    ).addTo(mymap);
-                  theatre_marker._icon.classList.add("theatreMarker"); // path.leaflet-interactive.theatreMarker
+              // Zoom in into the point if you click again
+              // and if some theatres labels are available
+              if(Object.keys(subTheatres).length !== 0) {
+                for (var key in subTheatres) {
+                  var key_list = key.split(',');
+                  var key_city_name = key_list[0];
+                  var key_lat = key_list[1];
+                  var key_long = key_list[2];
+                  if(temp_city_name === key_city_name) {
+                    var theatre_marker = L.marker(
+                      [key_lat, key_long], 
+                      {icon: theatreIcon}
+                      // {color: 'skyblue', fillColor: 'black', fillOpacity: 0.2, radius: 10}
+                      ).addTo(mymap);
+                    theatre_marker._icon.classList.add("theatreMarker");
 
-                  // Adding comment for the subtheaters
-                  var city_string = '';
-                  city_string += "<br>";
-                  for (const [index, element] of subTheatres[key].entries()) { 
-                    city_string += (index + 1) + ". " + element;
+                    // Adding comment for the subtheaters
+                    var city_string = '';
                     city_string += "<br>";
+                    var old_element = '';
+                    for (const [index, element] of subTheatres[key].entries()) {
+                      if (old_element === element.toLowerCase()) {
+                        continue;
+                      } else {
+                        city_string += (index + 1) + ". " + element;
+                        city_string += "<br>";
+                        // Updating old element to check
+                        old_element = element.toLowerCase();
+                      }
+                    }
+                    theatre_marker.bindTooltip("For theaters: " + city_string + " in city of: " + temp_city_name, {
+                      permanent: false, className: "my-theater-label", offset: [0, 0]
+                    });
+                    theatre_marker.on('click', function(){
+                      revertBackToCityView(allCityMarkers);
+                      lastCityClicked = null;
+                    });
                   }
-                  theatre_marker.bindTooltip("For theaters: " + city_string + " in city of: " + temp_city_name, {
-                    permanent: false, className: "my-theater-label", offset: [0, 0]
-                  });
-                  theatre_marker.on('click', function(){
-                    revertBackToCityView(allCityMarkers);
-                    lastCityClicked = null;
-                  });
                 }
-              }
 
-              // Remove all the city markers since we are zoomed into a region
-              for(i = 0; i < allCityMarkers.length; i++) {
-                allCityMarkers[i].style.display = 'none';
+                // Remove all the city markers since we are zoomed into a region
+                for(i = 0; i < allCityMarkers.length; i++) {
+                  allCityMarkers[i].style.display = 'none';
+                }
+                mymap.flyTo([latLongMap[temp_city_name][0], latLongMap[temp_city_name][1]], 14);
+                lastCityClicked = temp_city_name;
+                zoomClick = false;
               }
-              mymap.flyTo([latLongMap[temp_city_name][0], latLongMap[temp_city_name][1]], 14);
-              lastCityClicked = temp_city_name;
-              zoomClick = false;
             }
         });
         mymap.addLayer(marker);

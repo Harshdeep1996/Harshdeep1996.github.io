@@ -40,4 +40,5 @@ y3['lower_bounds'] = y3['lower_bounds_list'].apply(
     lambda x: list(x.keys())[0] if len(x.keys()) else 'Not there')
 y3 = y3[y3['lower_bounds'] != 'Not there']
 y3['lower_bounds_val'] = y3['lower_bounds_list'].apply(lambda x: list(x.values())[0])
+y3['titles'] = y3['lower_bounds_val'].apply(lambda x: '\t\t'.join([i[2] for i in x]))
 y3.reset_index().to_csv('../../data/composer_links.csv', index=False)

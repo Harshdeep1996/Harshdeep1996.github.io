@@ -8,13 +8,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Quattrocento&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
 
- <!-- Load jQuery and PapaParse to read data from a CSV file -->
- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.2/dist/index.min.js"></script>
+<!-- Load jQuery and PapaParse to read data from a CSV file -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.2/dist/index.min.js"></script>
 
 <link rel="stylesheet" href="css/style.css">
+<style>
+.my-link-label {
+    width: 20rem;
+    white-space: normal;
+}
+</style>
 </head>
 
 <body style="background-color: #6fc4d8;">
@@ -38,7 +44,7 @@
     <div class="header_class" style="height: 10%; background-color: #eadac9; text-align: center; border: 4px solid black; justify-content: space-between; display: flex; align-items: center;">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Logo_EPFL.svg/1280px-Logo_EPFL.svg.png" style="width: 6rem; height: 2rem; margin-left: 1rem;">
     <button id="1" class="button button1" onclick="on_description()">Description</button>
-	<h2 style="margin-top:1.2rem;">Rolandi Librettos Visualization</h2>
+	<h2 style="margin-top:1.2rem;">ROLANDI LIBRETTOS VISUALIZATION</h2>
     <button id="2" class="button button2" onclick="on_motivation()">Motivation</button>
     <img src="../images/cini-foundation.png" style="width: 6rem; height: 3rem; margin-right: 1rem;">
     </div>
@@ -53,12 +59,10 @@
      <!-- the max and the value is set by the javascript -->
       <input type="range" min="0" class="slider" id="myRange" step="10" style="margin-top: 0.02rem;">
 
-      <div class="menuwrapper">
-      </div>
-     <br>
+    <div class="menuwrapper"></div>
+    <br>
 
-     <div class="menuwrapper2">
-     </div>
+    <div class="menuwrapper2"></div>
 
 </datalist>
 </body>
