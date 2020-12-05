@@ -15,6 +15,7 @@ var markersCurrently = [];
 var zoomClick = false;
 var lastCityClicked = null;
 var yearSelected = null;
+var grouped_titles = null;
 
 // Indexes for array to trace in the data we retrieve from CSV
 const TITLE_INDEX = 14;
@@ -117,6 +118,7 @@ function parseData(url, callBack) {
 
 parseData("../data/get_librettos_dummies.csv", doStuff);
 // Create a promise to load the file or throw an error
+// Load composer links
 dfd.read_csv("../data/composer_links.csv")
 .then(df => {
     composer_links = df;
@@ -124,41 +126,83 @@ dfd.read_csv("../data/composer_links.csv")
 }).catch(err => {
     console.log(err);
 })
+// Load titles links
+dfd.read_csv("../data/titles_links.csv")
+.then(df_t => {
+  titles_links = df_t;
+  grouped_titles = titles_links.groupby(['lower_bounds', 'inferred_title']);
+  console.log("Loaded the titles links");
+}).catch(err => {
+  console.log(err);
+})
 
 
-function insertDropdown (name, year) {
+function insertDropdown (name, year, type) {
   // Make dropdown menu
-  var div = document.createElement('select');
+  var div = document.createElement("select");
   div.id = "div-" + name + "-" + year;
   div.setAttribute("name", "platform");
   // This will not work for more than 2 sequences
-  var option = document.createElement('option');
+  var option = document.createElement("option");
   option.setAttribute("value", 0);
-  option.innerHTML = 'Original Map sequence';
+  option.innerHTML = "Original Map sequence";
   div.appendChild(option);
-  var option_two = document.createElement('option');
+  var option_two = document.createElement("option");
   option_two.setAttribute("value", 1);
-  option_two.innerHTML = 'Cities composer played';
+  if(type !== 1) {
+    option_two.innerHTML = "Cities composer played";
+  } else {
+    option_two.innerHTML = "Titles played; different cities";
+  }
   div.appendChild(option_two);
   return div
 }
 
-function createLinks(dropdown_id) {
-  var same_year = composer_links.query(
-    {column: "lower_bounds", is: "==", to: String(yearSelected)});
-  var composer_selected = dropdown_id.split('-')[1];
-  var sameYearComposer = same_year.query(
-    {column: "inferred_composer", is: "==", to: composer_selected})
+function createLinks(isTitleLinks, dropdownDiv) {
+  var same_year = null;
+  var cred_selected = null;
+  var sameYearCreds = null;
+  var titles_list = null;
+  var city_list = null;
+  var years_list = null;
+  if(!isTitleLinks) {
+    same_year = composer_links.query(
+      {column: "lower_bounds", is: "==", to: String(yearSelected)});
+    cred_selected = dropdownDiv.id.split('-')[1];
+    sameYearCreds = same_year.query(
+      {column: "inferred_composer", is: "==", to: cred_selected})
+  } else {
+    cred_selected = dropdownDiv.id.split('-')[1];
+    sameYearCreds = titles_links.query(
+      {column: "inferred_title", is: "==", to: cred_selected}, {column: "lower_bounds", is: "==", to: String(yearSelected)});
+    sameYearCreds = sameYearCreds.query(
+      {column: "lower_bounds", is: "==", to: String(yearSelected)});
+  }
   var allCitiesLabels = [];
-  for(let i=0; i < sameYearComposer.shape[0]; i++) {
-    var city_list = sameYearComposer['cities'].data[i].replace(
+  var pointList = [];
+  for(let i=0; i < sameYearCreds.shape[0]; i++) {
+    if(!isTitleLinks) {
+      city_list = sameYearCreds['cities'].data[i].replace(
       '}', '').replace('{', '').replace(/'/g,'').split(', ');
-    var titles_list = sameYearComposer['titles'].data[i].replace(
-      '}', '').replace('{', '').replace(/'/g,'').split('\t\t');
-    allCitiesLabels.push('cityMarker-' + city_list[0]);
-    allCitiesLabels.push('cityMarker-' + city_list[1]);
+      titles_list = sameYearCreds['titles'].data[i].replace(
+        '}', '').replace('{', '').replace(/'/g,'').split('\t\t');
+    } else {
+      titles_list = sameYearCreds['cities'].data[i].replace(
+      ']', '').replace('[', '').replace(/'/g,'').split(', ');
+      city_list = titles_list;
+      years_list = sameYearCreds['years'].data[i].replace(
+      ']', '').replace('[', '').replace(/'/g,'').split(', ');
+    }
+    city_list.forEach(function (item, index) {
+      allCitiesLabels.push('cityMarker-' + item);
+      if(city_list.length - 1 !== index) {
+        pointList.push([latLongMap[city_list[index]], latLongMap[city_list[index + 1]]]);
+      } else {
+        pointList.push([latLongMap[city_list[index]], latLongMap[city_list[0]]])
+      }
+    });
+
     // From src to the destination
-    var pointList = [latLongMap[city_list[0]], latLongMap[city_list[1]]];
     var link_path = new L.Polyline(pointList, {
       color: 'red',
       weight: 10,
@@ -168,12 +212,22 @@ function createLinks(dropdown_id) {
     });
     var all_title_string = '';
     titles_list.forEach(function (item, index) {
-      all_title_string += (index + 1) + ". " + item;
+      if(!isTitleLinks) {
+        all_title_string += (index + 1) + ". " + item;
+      } else {
+        all_title_string += (index + 1) + ". " + item + " in the year " + years_list[index];
+      }
       all_title_string += "<br><br>";
     });
-    link_path.bindTooltip("Composers played for titles: " + "<br>" + all_title_string, {
-      permanent: false, className: "my-link-label", noWrap: true, offset: [0, 0]
-    });
+    if(!isTitleLinks) {
+      link_path.bindTooltip("Composers played for titles: " + "<br>" + all_title_string, {
+        permanent: false, className: "my-link-label", noWrap: true, offset: [0, 0]
+      });
+    } else {
+      link_path.bindTooltip("Play: " + cred_selected + " played in different cities: " + "<br>" + all_title_string, {
+        permanent: false, className: "my-link-label", noWrap: true, offset: [0, 0]
+      });
+    }
     link_path.addTo(mymap);
   }
   document.querySelectorAll("[id^='cityMarker-']").forEach(function(o) {
@@ -193,6 +247,20 @@ function deleteLinks() {
   // pop off each of the theatre markers
   while (allLinkLines.length > 0) {
     allLinkLines[0].parentNode.removeChild(allLinkLines[0]);
+  }
+}
+
+function checkPartofDF(year_sel, title) {
+  var year_present = year_sel in grouped_titles.col_dict;
+  if(!year_present) {
+    return false;
+  } else {
+    var titles_present = title in grouped_titles.col_dict[year_sel];
+    if(titles_present) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -232,14 +300,46 @@ function hoverAndDoThings(mouseObj) {
     scrollTextPane.appendChild(h3);
 
     global_results.forEach(function (o) {
-      if ((typeof o[YEAR_INDEX] !== 'string') && ((o[YEAR_INDEX] >= yearSelected && (o[YEAR_INDEX] < yearSelected + 22))) && (o[CITY_INDEX] === city_name)) {
+      if ((typeof o[YEAR_INDEX] !== "string") 
+        && ((o[YEAR_INDEX] >= yearSelected 
+          && (o[YEAR_INDEX] < yearSelected + 22))) 
+        && (o[CITY_INDEX] === city_name)) {
         var div = document.createElement("div");
         div.setAttribute("class", "w3-panel w3-blue w3-card-4");
 
         // Adding title pane
-        var p_title = document.createElement("p");
-        p_title.innerHTML = "Title";
-        p_title.style.fontSize = "15px";
+        var dropdown_title_div = null;
+        var title_pane_div = null;
+        if(checkPartofDF(yearSelected, o[TITLE_INDEX])) {
+          title_pane_div = document.createElement("div");
+          var p_title = document.createElement("p");
+          p_title.innerHTML = "Title";
+          p_title.style.fontSize = "15px";
+          p_title.style.display = "inline";
+          dropdown_title_div = insertDropdown(o[TITLE_INDEX], yearSelected, 1);
+          dropdown_title_div.onchange = function () {
+            if(dropdown_title_div.selectedIndex == 0) {
+              tileLayer.setOpacity(0.7);
+              deleteLinks();
+            } else {
+              tileLayer.setOpacity(0.4);
+              createLinks(true, this);
+            }
+          };
+          dropdown_title_div.style.marginLeft = "5px";
+          dropdown_title_div.style.display = "inline";
+          title_pane_div.style.marginTop = "1rem";
+          title_pane_div.style.marginBottom = "1rem";
+          title_pane_div.style.width = "100%";
+          title_pane_div.appendChild(p_title);
+          title_pane_div.appendChild(dropdown_title_div);
+          div.appendChild(title_pane_div);
+        } else {
+          var p_title = document.createElement("p");
+          p_title.innerHTML = "Title";
+          p_title.style.fontSize = "15px";
+          div.appendChild(p_title);
+        }
 
         var a_title_text = document.createElement("a");
         a_title_text.innerHTML = o[TITLE_INDEX];
@@ -274,13 +374,13 @@ function hoverAndDoThings(mouseObj) {
         }
 
         // Adding the paras to each child
-        div.appendChild(p_title);
         div.appendChild(a_title_text);
         div.appendChild(p_title_year);
         div.appendChild(p_title_year_text);
         if(p_title_composer != null) {
           // Create only dropdowns where we can see the multiple links
-          if(composer_links['lower_bounds'].data.includes(yearSelected) && composer_links['inferred_composer'].data.includes(o[COMPOSER_INDEX])) {
+          if(composer_links['lower_bounds'].data.includes(yearSelected) 
+            && composer_links['inferred_composer'].data.includes(o[COMPOSER_INDEX])) {
             composer_div = document.createElement("div");
             composer_div.appendChild(p_title_composer);
             dropdown_div = insertDropdown(o[COMPOSER_INDEX], yearSelected);
@@ -293,7 +393,7 @@ function hoverAndDoThings(mouseObj) {
                 deleteLinks();
               } else {
                 tileLayer.setOpacity(0.4);
-                createLinks(dropdown_div.id);
+                createLinks(false, this);
               }
             };
             composer_div.appendChild(dropdown_div);
