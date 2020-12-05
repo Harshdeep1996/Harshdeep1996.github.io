@@ -17,7 +17,7 @@ var lastCityClicked = null;
 var yearSelected = null;
 
 // Indexes for array to trace in the data we retrieve from CSV
-const TITLE_INDEX = 2;
+const TITLE_INDEX = 14;
 const YEAR_INDEX = 3;
 const CITY_INDEX = 6;
 const LAT_INDEX = 7;
