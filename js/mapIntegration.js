@@ -245,6 +245,7 @@ function hoverAndDoThings(mouseObj) {
         a_title_text.innerHTML = o[TITLE_INDEX];
         if(o[TITLE_MW_INDEX] !== 'Not found') {
           a_title_text.href = 'https://it.wikipedia.org/?curid=' + o[TITLE_MW_INDEX];
+          a_title_text.target = "_blank";
         } else {
           a_title_text.href = '';
           a_title_text.style.pointerEvents = "none";
@@ -309,6 +310,7 @@ function hoverAndDoThings(mouseObj) {
             a_title_composer_text.style.pointerEvents = "none";
           } else {
             a_title_composer_text.href = 'https://it.wikipedia.org/?curid=' + o[COMPOSER_MW_INDEX];
+            a_title_composer_text.target = "_blank";
           }
           a_title_composer_text.style.fontSize = "10px";
           a_title_composer_text.style.display = "flex";
