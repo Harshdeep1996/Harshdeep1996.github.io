@@ -28,6 +28,8 @@ const THEATER_LAT = 11;
 const THEATER_LONG = 12;
 const GENRE_INDEX = 17;
 const OCCASION_INDEX = 18;
+const TITLE_MW_INDEX = 15;
+const COMPOSER_MW_INDEX = 16;
 
 var mymap = L.map('mapid').setView([globalLat, globalLong], 6);
 
@@ -221,13 +223,13 @@ function hoverAndDoThings(mouseObj) {
     scroll_text_id.style.width = "24%";
 
     // Adding heading for the right bar
-    var h4 = document.createElement("h4");
-    h4.setAttribute("class", "headingFDHPanel");
-    h4.innerHTML = "List of Librettos for years: " + "<b>" + yearSelected + "-" + (yearSelected + 22) + "</b>" + " in city: " + "<b>" + city_name + "</b>";
-    h4.style.fontSize = "21px";
-    h4.style.textAlign = "center";
-    h4.style.fontFamily = "Quattrocento";
-    scrollTextPane.appendChild(h4);
+    var h3 = document.createElement("h3");
+    h3.setAttribute("class", "headingFDHPanel");
+    h3.innerHTML = "List of Librettos for years: " + "<b>" + yearSelected + "-" + (yearSelected + 22) + "</b>" + " in city: " + "<b>" + city_name + "</b>";
+    h3.style.textAlign = "center";
+    h3.style.fontFamily = "Quattrocento";
+    h3.style.fontWeight = "bold";
+    scrollTextPane.appendChild(h3);
 
     global_results.forEach(function (o) {
       if ((typeof o[YEAR_INDEX] !== 'string') && ((o[YEAR_INDEX] >= yearSelected && (o[YEAR_INDEX] < yearSelected + 22))) && (o[CITY_INDEX] === city_name)) {
@@ -239,9 +241,15 @@ function hoverAndDoThings(mouseObj) {
         p_title.innerHTML = "Title";
         p_title.style.fontSize = "15px";
 
-        var p_title_text = document.createElement("p");
-        p_title_text.innerHTML = o[TITLE_INDEX];
-        p_title_text.style.fontSize = "10px";
+        var a_title_text = document.createElement("a");
+        a_title_text.innerHTML = o[TITLE_INDEX];
+        if(o[TITLE_MW_INDEX] !== 'Not found') {
+          a_title_text.href = 'https://it.wikipedia.org/?curid=' + o[TITLE_MW_INDEX];
+        } else {
+          a_title_text.href = '';
+          a_title_text.style.pointerEvents = "none";
+        }
+        a_title_text.style.fontSize = "10px";
 
         // Adding year pane
         var p_title_year = document.createElement("p");
@@ -266,13 +274,10 @@ function hoverAndDoThings(mouseObj) {
 
         // Adding the paras to each child
         div.appendChild(p_title);
-        div.appendChild(p_title_text);
+        div.appendChild(a_title_text);
         div.appendChild(p_title_year);
         div.appendChild(p_title_year_text);
         if(p_title_composer != null) {
-          p_title_composer_text = document.createElement("p");
-          p_title_composer_text.innerHTML = o[COMPOSER_INDEX];
-          p_title_composer_text.style.fontSize = "10px";
           // Create only dropdowns where we can see the multiple links
           if(composer_links['lower_bounds'].data.includes(yearSelected) && composer_links['inferred_composer'].data.includes(o[COMPOSER_INDEX])) {
             composer_div = document.createElement("div");
@@ -296,7 +301,19 @@ function hoverAndDoThings(mouseObj) {
           } else {
             div.appendChild(p_title_composer);
           }
-          div.appendChild(p_title_composer_text);
+
+          a_title_composer_text = document.createElement("a");
+          a_title_composer_text.innerHTML = o[COMPOSER_INDEX];
+          if((o[COMPOSER_MW_INDEX] === 'Not found') || (String(o[COMPOSER_MW_INDEX]) === '505340')) {
+            a_title_composer_text.href = '';
+            a_title_composer_text.style.pointerEvents = "none";
+          } else {
+            a_title_composer_text.href = 'https://it.wikipedia.org/?curid=' + o[COMPOSER_MW_INDEX];
+          }
+          a_title_composer_text.style.fontSize = "10px";
+          a_title_composer_text.style.display = "flex";
+          a_title_composer_text.style.marginTop = "0.9rem";
+          div.appendChild(a_title_composer_text);
         }
 
         // Adding genre to the pane
