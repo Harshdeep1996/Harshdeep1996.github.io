@@ -211,6 +211,7 @@ function hoverAndDoThings(mouseObj) {
     h4.innerHTML = "List of Librettos for years: " + "<b>" + yearSelected + "-" + (yearSelected + 22) + "</b>" + " in city: " + "<b>" + city_name + "</b>";
     h4.style.fontSize = "21px";
     h4.style.textAlign = "center";
+    h4.style.fontFamily = "Quattrocento";
     scrollTextPane.appendChild(h4);
 
     global_results.forEach(function (o) {
