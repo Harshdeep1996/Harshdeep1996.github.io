@@ -23,11 +23,23 @@ def main(input_file, output_file):
                                  for occasions in data.occasion_method_1]
     data['inferred_occasion'] = [occasion[0] if len(occasion) > 0 else 'Not found'
                                  for occasion in data.inferred_occasion]
-    data = data.drop(columns=['occasion_method_1'])
 
+    # extrsct occasion method 2
+    occasion = r"per la fiera|la fiera|carnovale |carnevale "
+    data['occasion_method_2'] = [s[re.search(occasion,s.lower()).span(0)[0] : re.search(occasion,s.lower()).span(0)[1] + 17]
+                                 if re.search(occasion,s.lower()) else 'Not found' for s in data.title]
+    
+    data['inferred_occasion'] = [data.loc[idx, 'inferred_occasion'] 
+                                 if data.loc[idx, 'inferred_occasion'] !='Not found' 
+                                 else data.loc[idx, 'occasion_method_2'].split('. ')[0].strip() 
+                                 for idx in data.index]
+    
+    data = data.drop(columns=['occasion_method_1', 'occasion_method_2'])
+    
     print(data.sample(5))
     print('Number of rows for which no occasion was found:', data[data['inferred_occasion'] == 'Not found'].shape,
           ' over the total number of rows:', data.shape)
+
 
     data.to_csv(output_file, sep='\t')
 
