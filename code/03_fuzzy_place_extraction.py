@@ -37,7 +37,7 @@ def only_roman_chars(unistr):
            if uchr.isalpha())
 
 
-def makeFamousOperaCitiesList(city_names, long, lat):
+def makeFamousOperaCitiesList(city_names, long, lat, topN):
     city_names_dic = {}
     for cityLst in city_names:
         for city in cityLst:
@@ -48,7 +48,7 @@ def makeFamousOperaCitiesList(city_names, long, lat):
 
     popular_cities = []
     for key in city_names_dic:
-        if city_names_dic[key] > 10:
+        if city_names_dic[key] > topN:
             popular_cities.append(key)
 
     city_location_dic = {}
@@ -147,7 +147,7 @@ city_names = df_librettos.pot_city_name.tolist()
 
 long = df_librettos.longitude.tolist()
 lat = df_librettos.latitude.tolist()
-popular_cities, location_pop_cities_dic = makeFamousOperaCitiesList(city_names, long, lat)
+popular_cities, location_pop_cities_dic = makeFamousOperaCitiesList(city_names, long, lat, 10)
 
 
 
@@ -240,6 +240,9 @@ df_librettos['pot_city_name_fuzzy'] = Pot_city_name_fuzzy
 df_librettos['city_name'] = city_name
 df_librettos['latitude'] = latitude
 df_librettos['longitude'] = longitude
+
+cityCount = [city for city in city_name if city !=0]
+print(len(cityCount))
 
 
 

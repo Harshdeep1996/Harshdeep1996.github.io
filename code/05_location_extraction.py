@@ -54,6 +54,7 @@ def main(input_file, output_file):
     print('step 2 done')
 
     # extract place step 3
+
     geolocator = Nominatim(user_agent=key)
     geocode = RateLimiter(geolocator.geocode, min_delay_seconds=4)
     tqdm.pandas()
