@@ -24,8 +24,11 @@ def main(input_file, output_file):
     data['location_method_1'] = [location.replace('moisè', 'mosè')
                                  .replace("de'", 'dei')
                                  .replace('ss.', 'santi')
-                                 .replace('SS', 'santi')
+                                 .replace('SS ', 'santi')
+                                 .replace('SS.', 'santi')
                                  .replace('s.', 'san')
+                                 .replace('S ', 'san')
+                                 .replace('S.', 'san')
                                  .replace('sac.', 'sacro')
                                  .replace('gio.', 'giovanni')
                                  for location in data['location_method_1']]
@@ -54,14 +57,20 @@ def main(input_file, output_file):
     print('step 2 done')
 
     # extract place step 3
-
+    
     geolocator = Nominatim(user_agent=key)
     geocode = RateLimiter(geolocator.geocode, min_delay_seconds=4)
     tqdm.pandas()
-    geolocate_column = data['location_full_method_2'].progress_apply(geolocator.geocode)
+    #geolocate_column = data['location_full_method_2'].progress_apply(geolocator.geocode)
+    
+    data['city_not_nan'] = [city.replace('Not found', '') for city in data['city_name']]
+    data['location_city'] = data['location_full_method_2'] + ' ' + data['city_not_nan']
+    print(data.location_city)
+    
+    geolocate_column = data['location_city'].progress_apply(geolocator.geocode)
     data['location_latitude_method_2'] = geolocate_column.apply(get_latitude)
     data['location_longitude_method_2'] = geolocate_column.apply(get_longitude)
-
+   
     print('step 3 done')
 
     # extract place step 4
@@ -105,7 +114,7 @@ def main(input_file, output_file):
                               'location_full_method_1', 'location_full_method_2',
                               'location_method_2', 'location_latitude_method_2',
                               'location_longitude_method_2', 'location_vec_method_1',
-                              'predicted_cluster_method_1'])
+                              'predicted_cluster_method_1', 'city_not_nan', 'location_city'])
     print(data.sample(5))
     print('Number of rows for which no location was found:', data[data['inferred_location'] == 'Not found'].shape,
           ' over the total number of rows:', data.shape)
