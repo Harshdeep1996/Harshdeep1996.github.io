@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from difflib import SequenceMatcher
-
+import requests
 
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
@@ -29,8 +29,76 @@ def main(input_file, output_file):
 
     df_libretto['inferred_composer'] = corrected_composers
 
-    df_libretto.to_csv(output_file, sep='\t', index=False)
+    # title linking step 1
+    ses = requests.Session()
+    url = "https://it.wikipedia.org/w/api.php"
 
+    df_libretto['title_mediawiki_pageid'] = [ses.get(url=url, 
+                                                     params={"action": "query",
+                                                             "format": "json",
+                                                             "list": "search",
+                                                             "srsearch": df_libretto.loc[idx, 'inferred_title']
+                                                             +' opera'}).json()
+                                            ['query']['search'][0]['pageid']
+                                            if ('query' in ses.get(url=url,
+                                                params={"action": "query",
+                                                        "format": "json",
+                                                         "list": "search",
+                                                         "srsearch": df_libretto.loc[idx, 'inferred_title']
+                                                         +' opera'}).json().keys()) 
+                                             and (len(ses.get(url=url,
+                                                  params={"action": "query",
+                                                          "format": "json",
+                                                          "list": "search",
+                                                          "srsearch": df_libretto.loc[idx, 'inferred_title']
+                                                          + ' opera'}).json()['query']['search']) > 0)
+                                            else
+                                                df_libretto.loc[idx, 'title_mediawiki_pageid']
+                                            for idx in df_libretto.index
+                                       ]
+    print('title mediawiki adjusted')
+    
+    # extract information composer
+    
+    ses = requests.Session()
+    df_libretto['composer_mediawiki_pageid'] = [ses.get(url=url, 
+                                                        params={"action": "query",
+                                                               "format": "json",
+                                                               "list": "search",
+                                                               "srsearch": 
+                                                               df_libretto.loc[idx, 'inferred_composer'] +
+                                                              ' maestro'}).json()['query']['search'][0]['pageid']
+                                                if ('query' in ses.get(url=url, 
+                                                                       params={"action": "query",
+                                                                               "format": "json",
+                                                                               "list": "search",
+                                                                               "srsearch":
+                                                                               df_libretto.loc[idx,
+                                                                                              'inferred_composer']
+                                                                               + ' maestro'}).json().keys()) 
+                                                and (len(ses.get(url=url, 
+                                                                 params={"action": "query",
+                                                                         "format": "json",
+                                                                         "list": "search",
+                                                                         "srsearch":
+                                                                         df_libretto.loc[idx, 'inferred_composer']
+                                                                         + ' maestro'}).json()
+                                                         ['query']['search']) > 0)
+                                                else
+                                                   df_libretto.loc[idx, 'composer_mediawiki_pageid']
+                                               for idx in df_libretto.index
+                                            ]
+
+    print('composer mediawiki adjusted')
+
+    print(df_libretto.sample(5))
+    print('Number of rows for which no title was found:', 
+          df_libretto[df_libretto['inferred_title'] == 'Not found'].shape,
+          '\nnumber of rows for which no match to the title was found:',
+          df_libretto[df_libretto['title_mediawiki_pageid'] == 'Not found'].shape,
+          ' over the total number of rows:', df_libretto.shape)
+
+    df_libretto.to_csv(output_file, sep='\t', index=False)
 
 
 if __name__ == "__main__":
