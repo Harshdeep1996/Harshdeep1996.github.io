@@ -513,7 +513,7 @@ function plotIntensityMap(cityCount, subTheatres, totalLibrettoCount) {
           } else {
               // Zoom in into the point if you click again
               // and if some theatres labels are available
-              if(Object.keys(subTheatres).length !== 0) {
+              if(Object.keys(subTheatres).some(th_ => th_.includes(temp_city_name))) {
                 for (var key in subTheatres) {
                   var key_list = key.split(',');
                   var key_city_name = key_list[0];
@@ -558,6 +558,8 @@ function plotIntensityMap(cityCount, subTheatres, totalLibrettoCount) {
                 mymap.flyTo([latLongMap[temp_city_name][0], latLongMap[temp_city_name][1]], 14);
                 lastCityClicked = temp_city_name;
                 zoomClick = false;
+              } else {
+                alert('No theaters could be extracted here, sorry!')
               }
             }
         });
