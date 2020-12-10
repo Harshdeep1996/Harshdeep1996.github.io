@@ -31,6 +31,9 @@ python 09_quick_fixes.py
 * [occasion extraction](code/08_occasion_extraction.py): extracts occasion of representation (i.e. carnival, fair), stores new csv file into the folder [data](data)
 * [quick fixes](code/09_quick_fixes.py): improves composer extraction and wikimedia linking, stores new csv file into the folder [data](data)
 
+
+* **data**: contains all the produced csv files in order from oldest to most recent (with [librettos_8](data/librettos_8.csv) being the final version). Furthermore, it contains a [ground truth](data/ground_truth.xlsx) containing the expected and observed entities for 20 random libretti.
+
 ## Authors
 
 * **Harshdeep**
