@@ -2,12 +2,13 @@ import pandas as pd
 import numpy as np
 from difflib import SequenceMatcher
 import requests
+import json
 
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
 
-def main(input_file, output_file):
+def main(input_file, manifest_path, output_file):
     df_libretto = pd.read_csv(input_file, delimiter='\t', index_col='file_name')
 
 
@@ -20,7 +21,6 @@ def main(input_file, output_file):
         comp_bool = False
         for rep in represetari:
             if similar(comp,rep) > 0.7:
-                print(comp)
 
                 comp_bool = True
         if comp_bool:
@@ -28,6 +28,25 @@ def main(input_file, output_file):
         else: corrected_composers.append(comp)
 
     df_libretto['inferred_composer'] = corrected_composers
+
+    # add original source
+    ids = df_libretto.index
+    original_sources = []
+
+    for id in ids:
+        filename = manifest_path + id
+        if filename.endswith(".json"):
+            with open(filename) as jsonFile:
+                jsonData = json.load(jsonFile)
+
+                web_id = jsonData["@id"]
+                web_id = web_id.split('/')[-2]
+                web_address = 'http://dl.cini.it/collections/show/' + web_id
+                original_sources.append(web_address)
+
+    df_libretto['original_sources'] = original_sources
+
+    print('finished with sources and composer, starting with wiki')
 
     # title linking step 1
     ses = requests.Session()
@@ -98,10 +117,11 @@ def main(input_file, output_file):
           df_libretto[df_libretto['title_mediawiki_pageid'] == 'Not found'].shape,
           ' over the total number of rows:', df_libretto.shape)
 
-    df_libretto.to_csv(output_file, sep='\t', index=False)
+    df_libretto.to_csv(output_file, sep='\t')
 
 
 if __name__ == "__main__":
     input_file = '../data/librettos_7.csv'
+    manifest_path = '../manifests/'
     output_file = '../data/librettos_8.csv'
-    main(input_file, output_file)
+    main(input_file, manifest_path, output_file)
