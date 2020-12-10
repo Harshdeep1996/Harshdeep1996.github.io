@@ -35,7 +35,7 @@ const COMPOSER_MW_INDEX = 16;
 var mymap = L.map('mapid').setView([globalLat, globalLong], 6);
 
 // Stop the map from moving on left and right, by user input
-mymap.dragging.disable();
+// mymap.dragging.disable();
 
 var tileLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -457,15 +457,20 @@ function plotIntensityMap(cityCount, subTheatres, totalLibrettoCount) {
         var long = latLongMap[o][1];
         // Adding a marker and an associated popup
         // Use circle marker to get the right radius
-        var int_rad = cityCount[o] === 1 ? (0.01/ totalLibrettoCount) : (cityCount[o] / totalLibrettoCount);
+        var int_rad = (cityCount[o] / (totalLibrettoCount * 1.0)) * 100;
         // [0,1] => [2,25]
-        var map_int_rad = 10 + ((int_rad * 23)/(0.5))
+        if(int_rad <= 15) {
+          int_rad = int_rad + 15;
+        }
         var marker = L.marker(
           [lat, long], {icon: librettoIcon}).addTo(mymap);
             // color: 'grey', fillColor: 'rgb(123,61,63)', 
             // fillOpacity: 0.9, radius: map_int_rad})
+        librettoIcon = marker.options.icon;
+        librettoIcon.options.iconSize = [int_rad, int_rad];
+        marker.setIcon(librettoIcon);
         marker._icon.id = "cityMarker-" + o;
-        marker.bindTooltip("Number of librettos: " + cityCount[o] + " in city of: " + o, {
+        marker.bindTooltip("Number of librettos: " + cityCount[o] + " (" + ((cityCount[o] / (totalLibrettoCount * 1.0)) * 100).toFixed(2) + "%)" + " in city of: " + o, {
             permanent: false, className: "my-label", offset: [0, 0]
         });
 
