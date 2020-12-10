@@ -1,6 +1,6 @@
 import pandas as pd
 
-librettos = pd.read_csv('../../data/librettos_7.csv', sep='\t')
+librettos = pd.read_csv('../../data/librettos_8.csv', sep='\t')
 
 print('Total number of librettos: {}'.format(librettos.shape[0]))
 print('Columns present in the CSV: {}'.format(librettos.columns))

@@ -1,4 +1,4 @@
-	// Global latitude and longiitude
+  	// Global latitude and longiitude
 const globalLat = 43;
 const globalLong = 11;
 
@@ -18,19 +18,20 @@ var yearSelected = null;
 var grouped_titles = null;
 
 // Indexes for array to trace in the data we retrieve from CSV
-const TITLE_INDEX = 14;
+const TITLE_INDEX = 16;
 const YEAR_INDEX = 3;
 const CITY_INDEX = 6;
 const LAT_INDEX = 7;
 const LONG_INDEX = 8;
 const COMPOSER_INDEX = 10;
-const THEATER_NAME = 13;
-const THEATER_LAT = 11;
-const THEATER_LONG = 12;
-const GENRE_INDEX = 17;
-const OCCASION_INDEX = 18;
-const TITLE_MW_INDEX = 15;
-const COMPOSER_MW_INDEX = 16;
+const THEATER_NAME = 15;
+const THEATER_LAT = 13;
+const THEATER_LONG = 14;
+const GENRE_INDEX = 19;
+const OCCASION_INDEX = 20;
+const TITLE_MW_INDEX = 17;
+const COMPOSER_MW_INDEX = 18;
+const ORIGINAL_SOURCE_INDEX = 21;
 
 var mymap = L.map('mapid').setView([globalLat, globalLong], 6);
 
@@ -313,9 +314,15 @@ function hoverAndDoThings(mouseObj) {
         if(checkPartofDF(yearSelected, o[TITLE_INDEX])) {
           title_pane_div = document.createElement("div");
           var p_title = document.createElement("p");
-          p_title.innerHTML = "Title";
+          p_title.innerHTML = "Title  ";
           p_title.style.fontSize = "15px";
           p_title.style.display = "inline";
+          var a_original_source = document.createElement("a");
+          a_original_source.innerHTML = "[ORIGINAL SOURCE]";
+          a_original_source.href = o[ORIGINAL_SOURCE_INDEX]
+          a_original_source.style.fontSize = "13px";
+          a_original_source.target = "_blank";
+          p_title.appendChild(a_original_source);
           dropdown_title_div = insertDropdown(o[TITLE_INDEX], yearSelected, 1);
           dropdown_title_div.onchange = function () {
             if(dropdown_title_div.selectedIndex == 0) {
@@ -336,8 +343,14 @@ function hoverAndDoThings(mouseObj) {
           div.appendChild(title_pane_div);
         } else {
           var p_title = document.createElement("p");
-          p_title.innerHTML = "Title";
+          p_title.innerHTML = "Title  ";
           p_title.style.fontSize = "15px";
+          var a_original_source = document.createElement("a");
+          a_original_source.innerHTML = "[ORIGINAL SOURCE]";
+          a_original_source.style.fontSize = "13px";
+          a_original_source.href = o[ORIGINAL_SOURCE_INDEX]
+          a_original_source.target = "_blank";
+          p_title.appendChild(a_original_source);
           div.appendChild(p_title);
         }
 
@@ -361,22 +374,37 @@ function hoverAndDoThings(mouseObj) {
         p_title_year_text.innerHTML = o[YEAR_INDEX];
         p_title_year_text.style.fontSize = "10px";
 
+        // Adding the paras to each child
+        div.appendChild(a_title_text);
+        div.appendChild(p_title_year);
+        div.appendChild(p_title_year_text);
+
+        // Adding theatre pane
+        if((o[THEATER_NAME] !== 'Not found') && (o[THEATER_NAME] !== null)) {
+          var p_title_theatre = document.createElement("p");
+          p_title_theatre.innerHTML = "Theatre";
+          p_title_theatre.style.fontSize = "15px";
+
+          var p_title_theatre_text = document.createElement("p");
+          p_title_theatre_text.innerHTML = o[THEATER_NAME];
+          p_title_theatre_text.style.fontSize = "10px";
+
+          div.appendChild(p_title_theatre);
+          div.appendChild(p_title_theatre_text);
+        }
+
         // Add composer information to the information pane
         var p_title_composer = null;
         var p_title_composer_text = null;
         var dropdown_div = null;
         var composer_div = null;
-        if(o[COMPOSER_INDEX] !== null) {
+        if((o[COMPOSER_INDEX] !== null) && (o[COMPOSER_INDEX] !== 'Not found')) {
           p_title_composer = document.createElement("p");
           p_title_composer.innerHTML = "Composer";
           p_title_composer.style.fontSize = "15px";
           p_title_composer.style.display = "inline";
         }
 
-        // Adding the paras to each child
-        div.appendChild(a_title_text);
-        div.appendChild(p_title_year);
-        div.appendChild(p_title_year_text);
         if(p_title_composer != null) {
           // Create only dropdowns where we can see the multiple links
           if(composer_links['lower_bounds'].data.includes(yearSelected) 

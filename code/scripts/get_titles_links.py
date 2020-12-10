@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-x = pd.read_csv('../../data/librettos_7.csv', sep='\t')
+x = pd.read_csv('../../data/librettos_8.csv', sep='\t')
 
 y = x[x['inferred_title'] != 'Not found']
 y = y[y['date'] != 'no_year']
