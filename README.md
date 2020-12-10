@@ -33,7 +33,7 @@ python 09_quick_fixes.py
 
 ## Authors
 
-* **Harshdeep
+* **Harshdeep**
 * **Aurel Maeder**
 * **Ludovica Schaerf** 
 
