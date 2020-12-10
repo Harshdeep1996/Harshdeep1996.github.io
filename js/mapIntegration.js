@@ -16,6 +16,7 @@ var zoomClick = false;
 var lastCityClicked = null;
 var yearSelected = null;
 var grouped_titles = null;
+var grouped_composers = null;
 
 // Indexes for array to trace in the data we retrieve from CSV
 const TITLE_INDEX = 16;
@@ -123,6 +124,7 @@ parseData("../data/get_librettos_dummies.csv", doStuff);
 dfd.read_csv("../data/composer_links.csv")
 .then(df => {
     composer_links = df;
+    grouped_composers = composer_links.groupby(['lower_bounds', 'inferred_composer']);
     console.log("Loaded the composer links");
 }).catch(err => {
     console.log(err);
@@ -166,16 +168,16 @@ function createLinks(isTitleLinks, dropdownDiv) {
   var titles_list = null;
   var city_list = null;
   var years_list = null;
+  cred_selected = dropdownDiv.id.split('-')[1];
   if(!isTitleLinks) {
-    same_year = composer_links.query(
-      {column: "lower_bounds", is: "==", to: String(yearSelected)});
-    cred_selected = dropdownDiv.id.split('-')[1];
-    sameYearCreds = same_year.query(
-      {column: "inferred_composer", is: "==", to: cred_selected})
+    sameYearCreds = composer_links.query(
+      {column: "inferred_composer", is: "==", to: cred_selected},
+      {column: "lower_bounds", is: "==", to: String(yearSelected)}
+    );
   } else {
-    cred_selected = dropdownDiv.id.split('-')[1];
     sameYearCreds = titles_links.query(
-      {column: "inferred_title", is: "==", to: cred_selected}, {column: "lower_bounds", is: "==", to: String(yearSelected)});
+      {column: "inferred_title", is: "==", to: cred_selected}, 
+      {column: "lower_bounds", is: "==", to: String(yearSelected)});
     sameYearCreds = sameYearCreds.query(
       {column: "lower_bounds", is: "==", to: String(yearSelected)});
   }
@@ -251,12 +253,13 @@ function deleteLinks() {
   }
 }
 
-function checkPartofDF(year_sel, title) {
-  var year_present = year_sel in grouped_titles.col_dict;
+function checkPartofDF(year_sel, title, is_title) {
+  var grouped_links = is_title ? grouped_titles : grouped_composers;
+  var year_present = year_sel in grouped_links.col_dict;
   if(!year_present) {
     return false;
   } else {
-    var titles_present = title in grouped_titles.col_dict[year_sel];
+    var titles_present = title in grouped_links.col_dict[year_sel];
     if(titles_present) {
       return true;
     } else {
@@ -311,7 +314,7 @@ function hoverAndDoThings(mouseObj) {
         // Adding title pane
         var dropdown_title_div = null;
         var title_pane_div = null;
-        if(checkPartofDF(yearSelected, o[TITLE_INDEX])) {
+        if(checkPartofDF(yearSelected, o[TITLE_INDEX], true)) {
           title_pane_div = document.createElement("div");
           var p_title = document.createElement("p");
           p_title.innerHTML = "Title  ";
@@ -407,8 +410,7 @@ function hoverAndDoThings(mouseObj) {
 
         if(p_title_composer != null) {
           // Create only dropdowns where we can see the multiple links
-          if(composer_links['lower_bounds'].data.includes(yearSelected) 
-            && composer_links['inferred_composer'].data.includes(o[COMPOSER_INDEX])) {
+          if(checkPartofDF(yearSelected, o[COMPOSER_INDEX], false)) {
             composer_div = document.createElement("div");
             composer_div.appendChild(p_title_composer);
             dropdown_div = insertDropdown(o[COMPOSER_INDEX], yearSelected);
