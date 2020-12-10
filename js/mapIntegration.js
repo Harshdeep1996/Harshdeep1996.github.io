@@ -293,7 +293,7 @@ function hoverAndDoThings(mouseObj) {
     // Adding heading for the right bar
     var h3 = document.createElement("h3");
     h3.setAttribute("class", "headingFDHPanel");
-    h3.innerHTML = "List of Librettos for years: " + "<b>" + yearSelected + "-" + (yearSelected + 22) + "</b>" + " in city: " + "<b>" + city_name + "</b>";
+    h3.innerHTML = "List of Libretti for years: " + "<b>" + yearSelected + "-" + (yearSelected + 22) + "</b>" + " in city: " + "<b>" + city_name + "</b>";
     h3.style.textAlign = "center";
     h3.style.fontFamily = "Quattrocento";
     h3.style.fontWeight = "bold";
