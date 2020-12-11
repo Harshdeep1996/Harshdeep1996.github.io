@@ -34,6 +34,37 @@ python 09_quick_fixes.py
 
 * **data**: contains all the produced csv files in order from oldest to most recent (with [librettos_8](data/librettos_8.csv) being the final version). Furthermore, it contains a [ground truth](data/ground_truth.xlsx) containing the expected and observed entities for 20 random libretti.
 
+
+## Visualization
+
+* **index.html**: is the header page which provides a structure of the visualization which is further built upon using the Javascript code.
+
+* **code/scripts**: contains all the Python scripts for preprocessing and preparing the data for visualization purposes, for e.g. get all common composer or title links.
+
+* **js/mapIntegration.js**: builds the structure by working with the DOM and contains the most of the logic of the visualization, for e.g. mapping theaters, visualizing links or temporally looking at the librettos.
+
+* **css/style.css**: contains a single CSS file which provides the styling for the visualization.
+
+### To develop the visualization locally
+
+Working and developing on your local machine can be done with the existing code base. Additionally, to counter the Cross Origin Resource Sharing (CORS) issue, one would need to copy the Python script given below and run it in the parent directory; so that the machine hosts the data and one can work locally.
+
+```
+#!/usr/bin/env python3
+from http.server import HTTPServer, SimpleHTTPRequestHandler, test
+import sys
+
+class CORSRequestHandler (SimpleHTTPRequestHandler):
+    def end_headers (self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        SimpleHTTPRequestHandler.end_headers(self)
+
+if __name__ == '__main__':
+    test(CORSRequestHandler, HTTPServer, port=int(sys.argv[1]) if len(sys.argv) > 1 else 8000)
+```
+
+
+
 ## Authors
 
 * **Harshdeep**
